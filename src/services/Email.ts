@@ -29,27 +29,35 @@ import nodemailer from 'nodemailer';
 // };
 
 export const sendEmailOtp = async (email: string, otp: string) => {
-  console.log('Creating transporter...');
+  try {
+    console.log('Creating transporter...');
+    console.log('EMAIL_USER =', process.env.EMAIL_USER);
+    console.log(
+      'EMAIL_PASSWORD =',
+      process.env.EMAIL_PASSWORD ? 'Exists' : 'Missing',
+    );
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
+    console.log('Verifying SMTP...');
+    await transporter.verify();
+    console.log('SMTP verified');
 
-  console.log('Verifying SMTP...');
-  await transporter.verify();
-  console.log('SMTP Verified');
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Dentora Verification Code',
+      html: `<h1>${otp}</h1>`,
+    });
 
-  console.log('Sending email...');
-  const info = await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Dentora Verification Code',
-    html: `<h1>${otp}</h1>`,
-  });
-
-  console.log('Email sent:', info.messageId);
+    console.log(info);
+  } catch (err) {
+    console.error('SMTP ERROR:', err);
+    throw err;
+  }
 };
