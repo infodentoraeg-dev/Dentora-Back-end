@@ -1,0 +1,7 @@
+export enum PlanType {
+  NO_PLAN = 'NO_PLAN',
+  STARTER = 'STARTER',
+  STANDARD = 'STANDARD',
+  PREMIUM = 'PREMIUM',
+  ENTERPRISE = 'ENTERPRISE',
+}
