@@ -8,7 +8,7 @@ export const checkSubscriptionUnits = async (userId: string) => {
   });
 
   if (!subscription) {
-    throw new Error('No active subscription');
+    return null;
   }
 
   if (!subscription.remainingUnits || subscription.remainingUnits <= 0) {

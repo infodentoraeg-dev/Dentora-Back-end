@@ -13,6 +13,7 @@ import settingsRoute from './routes/Settings';
 import planRoute from './routes/Plan';
 import subscriptionRoute from './routes/Subscription';
 import paymentRoute from './routes/Payment';
+import dashboardRoute from './routes/doctor/Dashboard';
 
 const app = express();
 
@@ -39,14 +40,16 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// rate limiter
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'Too many requests from this IP, please try again in an hour!',
-});
+///////////////////
 
-app.use('/', limiter);
+// rate limiter
+// const limiter = rateLimit({
+//   max: 100,
+//   windowMs: 60 * 60 * 1000,
+//   message: 'Too many requests from this IP, please try again in an hour!',
+// });
+
+// app.use('/', limiter);
 
 // static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -61,5 +64,6 @@ app.use('/plans', planRoute);
 app.use('/subscriptions', subscriptionRoute);
 app.use('/payments', paymentRoute);
 app.use('/settings', settingsRoute);
+app.use('/doctor', dashboardRoute);
 
 export default app;
