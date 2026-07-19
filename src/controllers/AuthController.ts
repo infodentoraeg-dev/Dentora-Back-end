@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import fs from 'fs';
+import path from 'path';
 import User from '../models/User';
 import jwt from 'jsonwebtoken';
 import { UserRole } from '../enums/UserRole';
@@ -252,6 +254,99 @@ export const changePassword = async (req: Request, res: Response) => {
     await user.save();
     res.json({
       message: 'Password changed successfully',
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Unknown error',
+      });
+    }
+  }
+};
+
+const removeProfileImageFile = (profileImage?: string | null) => {
+  if (!profileImage) return;
+
+  const normalizedPath = profileImage.replace(/^\//, '');
+  const filePath = path.join(process.cwd(), normalizedPath);
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+};
+
+export const uploadProfileImage = async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        message: 'No image uploaded',
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+
+    removeProfileImageFile(user.profileImage);
+
+    const profileImage = `/uploads/profiles/${file.filename}`;
+    user.profileImage = profileImage;
+    await user.save();
+
+    const updatedUser = await User.findById(req.user.id).select('-password');
+
+    res.status(200).json({
+      message: 'Profile image uploaded successfully',
+      user: updatedUser,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Unknown error',
+      });
+    }
+  }
+};
+
+export const deleteProfileImage = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+
+    if (!user.profileImage) {
+      return res.status(400).json({
+        message: 'No profile image to delete',
+      });
+    }
+
+    removeProfileImageFile(user.profileImage);
+    user.profileImage = undefined;
+    await user.save();
+
+    const updatedUser = await User.findById(req.user.id).select('-password');
+
+    res.status(200).json({
+      message: 'Profile image deleted successfully',
+      user: updatedUser,
     });
   } catch (error) {
     if (error instanceof Error) {
