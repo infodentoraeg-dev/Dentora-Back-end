@@ -254,14 +254,21 @@ export const getCasesByDoctorId = async (req: Request, res: Response) => {
 
 export const getMyCases = async (req: Request, res: Response) => {
   try {
-    const cases = await Case.find({ doctor: req.user.id }).populate(
-      'doctor',
-      'fullName -_id',
-    );
+    const cases = await Case.find({ doctor: req.user.id })
     res.status(200).json({
       success: true,
       total: cases.length,
-      cases,
+      cases:cases.map((caseItem) => ({
+        caseNumber: caseItem.caseNumber,
+        caseType: caseItem.caseType,
+        createdAt: caseItem.createdAt,
+        estimatedDelivery: caseItem.estimatedDelivery,
+        paymentStatus: caseItem.paymentStatus,
+        price: caseItem.price,
+        status: caseItem.status,
+        title: caseItem.title,
+        description: caseItem.description,
+      })),
     });
   } catch (error) {
     if (error instanceof Error) {
