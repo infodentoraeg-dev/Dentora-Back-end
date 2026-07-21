@@ -158,7 +158,7 @@ export const validateCaseConfiguration = async (
     // CUSTOM ABUTMENT
     // =========================
 
-    if (caseExist.caseType === CaseType.CUSTOM_ABITMENT) {
+    if (caseExist.caseType === CaseType.CUSTOM_ABUTMENT) {
       if (!implantType) {
         return res.status(400).json({
           message: 'Custom abutment requires implant type',
