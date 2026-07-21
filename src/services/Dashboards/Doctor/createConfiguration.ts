@@ -11,6 +11,7 @@ export const createCaseConfiguration = async (
       {
         case: caseId,
         units: body.units,
+        selectedTeeth: body.selectedTeeth,
         restorationDesign: body.restorationDesignType,
         connectionType: body.connectionType,
         implantType: body.implantType,

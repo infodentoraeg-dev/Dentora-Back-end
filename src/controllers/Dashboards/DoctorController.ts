@@ -20,7 +20,12 @@ export const dashboard = async (req: Request, res: Response) => {
       Case.countDocuments({ doctor: doctorId }),
       Case.countDocuments({ doctor: doctorId, status: CaseStatus.PENDING }),
       Case.countDocuments({ doctor: doctorId, status: CaseStatus.COMPLETED }),
-      Case.find({ doctor: doctorId }).sort({ createdAt: -1 }).limit(5),
+      Case.find({ doctor: doctorId })
+        .select(
+          'caseNumber title description patientName patientType patientAge caseType status paymentStatus estimatedDelivery',
+        )
+        .sort({ createdAt: -1 })
+        .limit(5),
       Subscription.findOne({
         userId: doctorId,
         status: SubscriptionStatus.ACTIVE,
@@ -47,7 +52,7 @@ export const dashboard = async (req: Request, res: Response) => {
       },
 
       recentCases,
-      
+
       notifications: {
         items: notifications,
         unreadCount,

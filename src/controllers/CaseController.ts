@@ -307,6 +307,35 @@ export const getMyCases = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyPatients = async (req: Request, res: Response) => {
+  try {
+    const patients = await Case.find({ doctor: req.user.id });
+    res.status(200).json({
+      success: true,
+      total: patients.length,
+      patients: patients.map((caseItem) => ({
+        id: caseItem._id,
+        caseType: caseItem.caseType,
+        price: caseItem.price,
+        title: caseItem.title,
+        patientName: caseItem.patientName,
+        patientType: caseItem.patientType,
+        patientAge: caseItem.patientAge,
+      })),
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Unknown error',
+      });
+    }
+  }
+};
+
 export const completeCaseById = async (req: Request, res: Response) => {
   try {
     const caseId = req.params.id;

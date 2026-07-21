@@ -12,7 +12,11 @@ const CaseConfigurationSchema = new mongoose.Schema({
   },
 
   units: Number,
-
+  selectedTeeth: {
+    type: [Number],
+    default: [],
+    required: true,
+  },
   connectionType: {
     type: String,
     enum: Object.values(ConnectionType),
