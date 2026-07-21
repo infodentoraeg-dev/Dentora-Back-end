@@ -10,64 +10,84 @@ import { CaseStatus } from '../enums/CaseStatus';
 import { ActivityActionRelatedTo } from '../enums/ActivityActionRelatedTo';
 import { canChangeCaseStatus } from '../validators/CaseStatusValidator';
 import { checkSubscriptionUnits } from '../validators/SubscriptionValidator';
+import catchAsync from '../middleware/CatchAsync';
+import { createCaseWithConfiguration } from '../services/Dashboards/Doctor/CreateCase';
 
-export const createCase = async (req: Request, res: Response) => {
-  try {
-    const caseData = { ...req.body };
-    caseData.doctor = req.user.id;
-    // let caseNumber = await Case.countDocuments({}) + 1;
-    const caseExist = await Case.findOne({ caseNumber: req.body.caseNumber });
-    if (caseExist)
-      return res
-        .status(400)
-        .json({ message: 'Case already exists with the same case number' });
-    const subscription = await checkSubscriptionUnits(req.user.id);
-    if (subscription && subscription.remainingUnits) {
-      subscription.remainingUnits--;
-      await subscription.save();
-    }
-    const createdCase = await Case.create(caseData);
-    const admin = await User.findOne({
-      role: UserRole.ADMIN,
-    });
-    if (!admin) {
-      return res.status(500).json({
-        message: 'Admin account not found',
-      });
-    }
-    await createActivity({
-      relatedId: createdCase._id.toString(),
-      userId: req.user.id,
-      action: ActivityAction.CASE_CREATED,
-      description: `${req.user.fullName} created the case`,
-      relatedModel: ActivityActionRelatedTo.CASE,
-    });
+// export const createCase = async (req: Request, res: Response) => {
+//   try {
+//     const caseData = { ...req.body };
+//     caseData.doctor = req.user.id;
+//     // let caseNumber = await Case.countDocuments({}) + 1;
+//     const caseExist = await Case.findOne({ caseNumber: req.body.caseNumber });
+//     if (caseExist)
+//       return res
+//         .status(400)
+//         .json({ message: 'Case already exists with the same case number' });
+//     const subscription = await checkSubscriptionUnits(req.user.id);
+//     if (subscription && subscription.remainingUnits) {
+//       subscription.remainingUnits--;
+//       await subscription.save();
+//     }
+//     const createdCase = await Case.create(caseData);
+//     const admin = await User.findOne({
+//       role: UserRole.ADMIN,
+//     });
+//     if (!admin) {
+//       return res.status(500).json({
+//         message: 'Admin account not found',
+//       });
+//     }
+//     await createActivity({
+//       relatedId: createdCase._id.toString(),
+//       userId: req.user.id,
+//       action: ActivityAction.CASE_CREATED,
+//       description: `${req.user.fullName} created the case`,
+//       relatedModel: ActivityActionRelatedTo.CASE,
+//     });
 
-    await createNotification({
-      user: admin._id.toString(),
-      title: 'New Case Assigned',
-      message: 'A new case has been assigned to you',
-      type: NotificationType.CASE_ASSIGNED,
-      relatedId: createdCase._id.toString(),
-      relatedModel: 'Case',
-    });
+//     await createNotification({
+//       user: admin._id.toString(),
+//       title: 'New Case Assigned',
+//       message: 'A new case has been assigned to you',
+//       type: NotificationType.CASE_ASSIGNED,
+//       relatedId: createdCase._id.toString(),
+//       relatedModel: 'Case',
+//     });
 
-    res.status(201).json({
-      message: 'Case created successfully',
-      case: await createdCase.populate('doctor', 'fullName -_id'),
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Unknown error',
-      });
-    }
-  }
-};
+//     res.status(201).json({
+//       message: 'Case created successfully',
+//       case: await createdCase.populate('doctor', 'fullName -_id'),
+//     });
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       res.status(500).json({
+//         error: error.message,
+//       });
+//     } else {
+//       res.status(500).json({
+//         error: 'Unknown error',
+//       });
+//     }
+//   }
+// };
+
+export const createCase = catchAsync(async (req: Request, res: Response) => {
+  const body = {
+    ...req.body,
+    doctor: req.user.id,
+  };
+
+  const createdCase = await createCaseWithConfiguration(
+    body,
+    (req.files as Express.Multer.File[]) || [],
+    req.user,
+  );
+
+  res.status(201).json({
+    message: 'Case created successfully',
+    case: createdCase,
+  });
+});
 
 export const getAllCases = async (req: Request, res: Response) => {
   try {
@@ -254,11 +274,12 @@ export const getCasesByDoctorId = async (req: Request, res: Response) => {
 
 export const getMyCases = async (req: Request, res: Response) => {
   try {
-    const cases = await Case.find({ doctor: req.user.id })
+    const cases = await Case.find({ doctor: req.user.id });
     res.status(200).json({
       success: true,
       total: cases.length,
-      cases:cases.map((caseItem) => ({
+      cases: cases.map((caseItem) => ({
+        id: caseItem._id,
         caseNumber: caseItem.caseNumber,
         caseType: caseItem.caseType,
         createdAt: caseItem.createdAt,
@@ -268,6 +289,9 @@ export const getMyCases = async (req: Request, res: Response) => {
         status: caseItem.status,
         title: caseItem.title,
         description: caseItem.description,
+        patientName: caseItem.patientName,
+        patientType: caseItem.patientType,
+        patientAge: caseItem.patientAge,
       })),
     });
   } catch (error) {

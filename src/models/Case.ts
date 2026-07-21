@@ -4,6 +4,7 @@ import { PaymentStatus } from '../enums/PaymentStatus';
 import { AssignmentType } from '../enums/AssignmentType';
 import { CaseStatus } from '../enums/CaseStatus';
 import { CaseType } from '../enums/CaseType';
+import { PatientType } from '../enums/PatientType';
 
 const CaseSchema = new mongoose.Schema(
   {
@@ -14,9 +15,31 @@ const CaseSchema = new mongoose.Schema(
       required: [true, 'Doctor is required'],
     },
 
-    title: { type: String, required: [true, 'Title is required'], minLength: 3, maxLength: 100 },
+    title: {
+      type: String,
+      required: [true, 'Title is required'],
+      minLength: 3,
+      maxLength: 100,
+    },
 
-    description: { type: String, required: [true, 'Description is required'], minLength: 10, maxLength: 1000 },
+    description: {
+      type: String,
+      required: [true, 'Description is required'],
+      minLength: 10,
+      maxLength: 1000,
+    },
+
+    patientName: {
+      type: String,
+      required: [true, 'Patient is required'],
+    },
+    patientType: {
+      type: String,
+      required: [true, 'Patient type is required'],
+      enum: Object.values(PatientType),
+      default: PatientType.Male,
+    },
+    patientAge: Number,
 
     caseType: {
       type: String,

@@ -34,7 +34,7 @@ import {
 const router = express.Router();
 
 router.get('/', auth(), getAllCases);
-router.post('/', auth(), createCase);
+router.post('/', auth(), upload.array('files', 10), createCase);
 
 router.get('/me', auth(), getMyCases);
 router.get('/me/files', auth(), getMyFiles);
