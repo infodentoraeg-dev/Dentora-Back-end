@@ -23,6 +23,8 @@ export const createCaseWithConfiguration = async (
   files: Express.Multer.File[],
   user: any,
 ) => {
+  console.log('Controller reached');
+  console.log(body);
   const session = await mongoose.startSession();
 
   try {
@@ -63,7 +65,7 @@ export const createCaseWithConfiguration = async (
 
           caseType: body.caseType,
 
-          caseNumber: body.caseNumber,
+          caseNumber: `${user.fullName}-${Date.now()}`,
 
           estimatedDelivery: Date.now() + 1000 * 60 * 60 * 24,
         },

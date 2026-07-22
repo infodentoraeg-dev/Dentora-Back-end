@@ -49,13 +49,16 @@ export const getCaseConfiguration = async (req: Request, res: Response) => {
 
 export const updateCaseConfiguration = async (req: Request, res: Response) => {
   try {
-    const caseConfiguration = await CaseConfiguration.findByIdAndUpdate(
-      req.params.id,
+    const caseId = req.params.id;
+
+    const caseConfiguration = await CaseConfiguration.findOneAndUpdate(
+      { case: caseId },
       req.body,
       {
         new: true,
       },
     );
+
     res.status(200).json({
       message: 'Case configuration updated successfully',
       caseConfiguration,
