@@ -12,6 +12,7 @@ import { canChangeCaseStatus } from '../validators/CaseStatusValidator';
 import { checkSubscriptionUnits } from '../validators/SubscriptionValidator';
 import catchAsync from '../middleware/CatchAsync';
 import { createCaseWithConfiguration } from '../services/Dashboards/Doctor/CreateCase';
+import CaseConfiguration from '../models/CaseConfiguration';
 
 // export const createCase = async (req: Request, res: Response) => {
 //   try {
@@ -146,6 +147,32 @@ export const getCaseById = async (req: Request, res: Response) => {
     if (!caseExist) return res.status(404).json({ message: 'Case not found' });
     res.status(200).json({
       case: await caseExist.populate('doctor', 'fullName -_id'),
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Unknown error',
+      });
+    }
+  }
+};
+
+export const getMyCaseById = async (req: Request, res: Response) => {
+  try {
+    const caseId = req.params.id;
+    const caseExist = await Case.findOne({ _id: caseId, doctor: req.user.id });
+
+    if (!caseExist) return res.status(404).json({ message: 'Case not found' });
+    const caseConfiguration = await CaseConfiguration.findOne({
+      case: caseExist?._id,
+    });
+    res.status(200).json({
+      case: await caseExist,
+      caseConfiguration,
     });
   } catch (error) {
     if (error instanceof Error) {

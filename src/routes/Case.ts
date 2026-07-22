@@ -7,6 +7,7 @@ import {
   getAllCases,
   getCaseById,
   getCasesByDoctorId,
+  getMyCaseById,
   getMyCases,
   getMyPatients,
   updateCaseById,
@@ -38,6 +39,7 @@ router.get('/', auth(), getAllCases);
 router.post('/', auth(), upload.array('files', 10), createCase);
 
 router.get('/me', auth(), getMyCases);
+router.get('/me/:id', auth(), getMyCaseById);
 router.get('/me/patients', auth(), getMyPatients);
 router.get('/me/files', auth(), getMyFiles);
 router.get('/doctor/:id', auth(), getCasesByDoctorId);

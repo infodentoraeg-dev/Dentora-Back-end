@@ -50,7 +50,7 @@ export const getCaseConfiguration = async (req: Request, res: Response) => {
 export const updateCaseConfiguration = async (req: Request, res: Response) => {
   try {
     const caseConfiguration = await CaseConfiguration.findByIdAndUpdate(
-      req.params.caseId,
+      req.params.id,
       req.body,
       {
         new: true,
