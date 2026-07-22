@@ -65,13 +65,16 @@ export const createCaseWithConfiguration = async (
 
           caseType: body.caseType,
 
-          caseNumber: `${user.fullName}-${Date.now()}`,
+          caseNumber: body.caseNumber,
 
           estimatedDelivery: Date.now() + 1000 * 60 * 60 * 24,
         },
       ],
       { session },
     );
+    if (typeof body.selectedTeeth === 'string') {
+      body.selectedTeeth = JSON.parse(body.selectedTeeth);
+    }
 
     await createCaseConfiguration(createdCase._id.toString(), body, session);
 
