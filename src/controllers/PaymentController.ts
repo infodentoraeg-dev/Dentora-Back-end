@@ -111,9 +111,12 @@ export const getAllPayments = async (req: Request, res: Response) => {
 
 export const getMyPayments = async (req: Request, res: Response) => {
   try {
-    const payments = await Payment.find({ user: req.user.id })
-      .populate('user', 'fullName email')
-      .populate('plan', 'name price');
+    const payments = await Payment.find({ user: req.user.id }).select(
+      '-reviewedBy -user -__v',
+    ).populate(
+      'plan',
+      'name price',
+    );
 
     res.json({
       message: 'Payments retrieved successfully',

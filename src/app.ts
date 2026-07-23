@@ -13,7 +13,8 @@ import settingsRoute from './routes/Settings';
 import planRoute from './routes/Plan';
 import subscriptionRoute from './routes/Subscription';
 import paymentRoute from './routes/Payment';
-import dashboardRoute from './routes/doctor/Dashboard';
+import doctorDashboardRoute from './routes/doctor/Dashboard';
+import adminDashboardRoute from './routes/admin/Dashboard';
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use('/plans', planRoute);
 app.use('/subscriptions', subscriptionRoute);
 app.use('/payments', paymentRoute);
 app.use('/settings', settingsRoute);
-app.use('/doctor', dashboardRoute);
+app.use('/doctor', doctorDashboardRoute);
+app.use('/admin', adminDashboardRoute);
 
 export default app;

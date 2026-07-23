@@ -1,5 +1,7 @@
 export enum PaymentMethod {
   VISA = "VISA",
+  MASTER_CARD = "MASTER_CARD",
   INSTAPAY = "INSTAPAY",
   VODAFONE_CASH = "VODAFONE_CASH",
+  PAYPAL = "PAYPAL",
 }

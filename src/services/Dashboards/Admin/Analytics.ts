@@ -42,7 +42,7 @@ export const getTopDoctors = async () => {
           name: '$doctor.fullName',
           email: '$doctor.email',
         },
-        totalCases: 1,
+        totalCases: '$totalCases',
       },
     },
   ]);
